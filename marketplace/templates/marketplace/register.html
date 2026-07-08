@@ -1,0 +1,132 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}Worker Onboarding Registration - Labor Connect Gujarat{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" id="register-page-wrapper">
+    <div class="auth-card register-wide" id="register-form-card">
+        <div class="auth-header">
+            <h1 class="auth-title">Register as a Worker</h1>
+            <p class="auth-subtitle">
+                Already registered? <a href="{% url 'login' %}" id="login-redirect-link">Login to Dashboard</a>
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="worker-onboarding-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <h3 style="margin-bottom: 1rem; color: var(--primary-dark); font-size: 1.15rem; border-bottom: 1px solid var(--neutral-border); padding-bottom: 0.25rem;">
+                <i class="fa-solid fa-lock"></i> Account Credentials
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group" id="group-username">
+                    <label for="id_username" class="input-label">Username</label>
+                    {{ form.username.errors }}
+                    <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter username" value="{{ form.username.value|default:'' }}" required>
+                    <span class="help-text">Used for logging in later.</span>
+                </div>
+                
+                <div class="form-group" id="group-email">
+                    <label for="id_email" class="input-label">Email Address (Optional)</label>
+                    {{ form.email.errors }}
+                    <input type="email" name="email" id="id_email" class="form-control" placeholder="example@email.com" value="{{ form.email.value|default:'' }}">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" id="group-password">
+                    <label for="id_password" class="input-label">Password</label>
+                    {{ form.password.errors }}
+                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Choose password" required>
+                </div>
+                
+                <div class="form-group" id="group-confirm-password">
+                    <label for="id_confirm_password" class="input-label">Confirm Password</label>
+                    {{ form.confirm_password.errors }}
+                    <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" placeholder="Re-type password" required>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-dark); font-size: 1.15rem; border-bottom: 1px solid var(--neutral-border); padding-bottom: 0.25rem;">
+                <i class="fa-solid fa-user"></i> Professional Profile Details
+            </h3>
+
+            <div class="form-row">
+                <div class="form-group" id="group-name">
+                    <label for="id_name" class="input-label">Full Name</label>
+                    {{ form.name.errors }}
+                    <input type="text" name="name" id="id_name" class="form-control" placeholder="E.g., Ramesh Bhai Patel" value="{{ form.name.value|default:'' }}" required>
+                </div>
+                
+                <div class="form-group" id="group-experience">
+                    <label for="id_experience" class="input-label">Years of Experience</label>
+                    {{ form.experience.errors }}
+                    <input type="number" name="experience" id="id_experience" class="form-control" placeholder="E.g., 5" value="{{ form.experience.value|default:0 }}" required min="0">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" id="group-mobile">
+                    <label for="id_mobile_number" class="input-label">Mobile Number</label>
+                    {{ form.mobile_number.errors }}
+                    <input type="text" name="mobile_number" id="id_mobile_number" class="form-control" placeholder="10-digit phone number" value="{{ form.mobile_number.value|default:'' }}" required>
+                    <span class="help-text">Customers will call you on this number.</span>
+                </div>
+                
+                <div class="form-group" id="group-whatsapp">
+                    <label for="id_whatsapp_number" class="input-label">WhatsApp Contact Number (Optional)</label>
+                    {{ form.whatsapp_number.errors }}
+                    <input type="text" name="whatsapp_number" id="id_whatsapp_number" class="form-control" placeholder="WhatsApp number" value="{{ form.whatsapp_number.value|default:'' }}">
+                    <span class="help-text">Leave blank if same as mobile number.</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" id="group-skill">
+                    <label for="id_skill" class="input-label">Skill / Profession</label>
+                    {{ form.skill.errors }}
+                    <select name="skill" id="id_skill" class="rating-select" required>
+                        <option value="" disabled selected>Select your trade...</option>
+                        {% for skill_val, skill_lbl in form.fields.skill.choices %}
+                            <option value="{{ skill_val }}" {% if form.skill.value == skill_val %}selected{% endif %}>{{ skill_lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" id="group-location">
+                    <label for="id_location" class="input-label">Location / Primary Area</label>
+                    {{ form.location.errors }}
+                    <select name="location" id="id_location" class="rating-select" required>
+                        <option value="" disabled selected>Select primary area...</option>
+                        {% for loc_val, loc_lbl in form.fields.location.choices %}
+                            <option value="{{ loc_val }}" {% if form.location.value == loc_val %}selected{% endif %}>{{ loc_lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" id="group-rate" style="flex: 1 1 100%;">
+                    <label for="id_daily_rate" class="input-label">Target Daily Rate (₹, optional)</label>
+                    {{ form.daily_rate.errors }}
+                    <input type="number" name="daily_rate" id="id_daily_rate" class="form-control" placeholder="Target daily wage in rupees" value="{{ form.daily_rate.value|default:'' }}" step="0.01">
+                </div>
+            </div>
+
+            <div class="form-group" id="group-bio">
+                <label for="id_bio" class="input-label">Biography / Brief Bio</label>
+                {{ form.bio.errors }}
+                <textarea name="bio" id="id_bio" class="form-control" rows="3" placeholder="Tell customers about your skills, typical projects, work timing, or other details...">{{ form.bio.value|default:'' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem; font-size: 1.05rem;" id="submit-onboarding-btn">
+                <i class="fa-solid fa-user-plus"></i> Submit Registration
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

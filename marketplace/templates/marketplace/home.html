@@ -1,0 +1,188 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}Labor Connect Gujarat - Find Carpenters, Masons, Plumbers in Ahmedabad{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <span class="hero-tagline">Connecting Gujarat's Skilled Labor</span>
+        <h1 class="hero-title">Find Reliable & Available <span>Labor Workers</span> Instantly</h1>
+        <p class="hero-description">
+            Directly connect with local masons, carpenters, plumbers, painters, and electricians in Gujarat. No middleman, no fees. Check real-time availability!
+        </p>
+        
+        <!-- Live System Statistics -->
+        <div class="stats-container" id="homepage-stats">
+            <div class="stat-item" id="stat-total-workers">
+                <span class="stat-number">{{ total_workers }}</span>
+                <span class="stat-label">Registered Workers</span>
+            </div>
+            <div class="stat-item" id="stat-available-today">
+                <span class="stat-number" style="color: var(--success);">{{ available_today }}</span>
+                <span class="stat-label">Available Today</span>
+            </div>
+            <div class="stat-item" id="stat-premium">
+                <span class="stat-number" style="color: var(--primary-dark);">{{ premium_count }}</span>
+                <span class="stat-label">Verified Partners</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Bar / Filters -->
+<section class="container">
+    <div class="search-card" id="search-section">
+        <form method="GET" action="{% url 'home' %}" class="search-form" id="search-workers-form">
+            <div class="form-group-search">
+                <label for="q-search">Search Keyword</label>
+                <input type="text" name="q" id="q-search" value="{{ query }}" placeholder="Search name or experience..." class="search-input">
+            </div>
+            <div class="form-group-search">
+                <label for="skill-select">Skill Category</label>
+                <select name="skill" id="skill-select" class="search-select">
+                    <option value="">All Skills</option>
+                    {% for skill_value, skill_label in skills %}
+                        <option value="{{ skill_value }}" {% if selected_skill == skill_value %}selected{% endif %}>{{ skill_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-search">
+                <label for="location-select">Location / Area</label>
+                <select name="location" id="location-select" class="search-select">
+                    <option value="">All location</option>
+                    {% for loc_value, loc_label in locations %}
+                        <option value="{{ loc_value }}" {% if selected_location == loc_value %}selected{% endif %}>{{ loc_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-search">
+                <label for="availability-select">Availability Status</label>
+                <select name="availability" id="availability-select" class="search-select">
+                    <option value="">Any Availability</option>
+                    {% for avail_value, avail_label in availabilities %}
+                        <option value="{{ avail_value }}" {% if selected_availability == avail_value %}selected{% endif %}>{{ avail_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="search-btn" id="submit-search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i> Search
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Main Directory List -->
+<section class="container">
+    <div class="section-title">
+        <h2 id="results-heading">
+            {% if query or selected_skill or selected_location or selected_availability %}
+                Search Results
+            {% else %}
+                Featured Workers in Gujarat
+            {% endif %}
+        </h2>
+        <span class="section-subtitle" id="results-count">{{ workers.count }} workers found</span>
+    </div>
+
+    <!-- Workers Grid -->
+    <div class="worker-grid" id="workers-list-grid">
+        {% for worker in workers %}
+            <div class="worker-card {% if worker.is_premium %}premium{% endif %}" id="worker-card-{{ worker.id }}">
+                {% if worker.is_premium %}
+                    <div class="premium-ribbon">Premium</div>
+                {% endif %}
+                
+                <div class="card-header">
+                    <!-- Photo avatar -->
+                    {% if worker.profile_picture %}
+                        <img src="{{ worker.profile_picture.url }}" alt="{{ worker.name }}" class="worker-avatar">
+                    {% else %}
+                        <div class="worker-avatar">
+                            {{ worker.name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="worker-meta">
+                        <div class="worker-name-container">
+                            <a href="{% url 'worker_detail' worker.id %}" class="worker-name" id="worker-name-link-{{ worker.id }}">{{ worker.name }}</a>
+                            {% if worker.is_verified %}
+                                <i class="fa-solid fa-circle-check verified-icon" title="Verified Member" id="verified-icon-{{ worker.id }}"></i>
+                            {% endif %}
+                        </div>
+                        <span class="worker-skill" id="worker-skill-{{ worker.id }}">{{ worker.get_skill_display }}</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Availability Badge -->
+                    <div style="margin-bottom: 0.75rem;">
+                        {% if worker.availability == 'available' %}
+                            <span class="badge badge-available" id="availability-badge-{{ worker.id }}">
+                                <span class="badge-dot"></span> Available Today
+                            </span>
+                        {% elif worker.availability == 'soon' %}
+                            <span class="badge badge-soon" id="availability-badge-{{ worker.id }}">
+                                <span class="badge-dot"></span> Available Soon
+                            </span>
+                        {% else %}
+                            <span class="badge badge-busy" id="availability-badge-{{ worker.id }}">
+                                <span class="badge-dot"></span> Busy / Engaged
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <p class="worker-bio" id="worker-bio-{{ worker.id }}">{{ worker.bio|default:"Experienced labor worker ready for projects across Ahmedabad. Contact for details." }}</p>
+                    
+                    <div class="worker-details-list">
+                        <div class="detail-item" id="worker-exp-{{ worker.id }}">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <span><strong>{{ worker.experience }} Years</strong> Experience</span>
+                        </div>
+                        <div class="detail-item" id="worker-loc-{{ worker.id }}">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>{{ worker.get_location_display }}</span>
+                        </div>
+                        {% if worker.daily_rate %}
+                            <div class="detail-item" id="worker-rate-{{ worker.id }}">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                                <span>₹{{ worker.daily_rate }} / day (approx)</span>
+                            </div>
+                        {% endif %}
+                        <div class="detail-item" id="worker-rating-{{ worker.id }}">
+                            <i class="fa-solid fa-star" style="color: #FBBF24;"></i>
+                            <span class="rating-stars">
+                                {% if worker.average_rating > 0 %}
+                                    {{ worker.average_rating }} <span class="rating-text">({{ worker.review_count }} reviews)</span>
+                                {% else %}
+                                    <span class="rating-text">No reviews yet</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <a href="tel:+91{{ worker.mobile_number }}" class="btn-contact btn-call" id="call-btn-{{ worker.id }}">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </a>
+                    <a href="https://wa.me/91{{ worker.whatsapp_number|default:worker.mobile_number }}?text=Hello%20{{ worker.name }},%20I%20saw%20your%20profile%20on%20Labor%20Connect%20Gujarat%20and%20wanted%20to%20hire%20you." target="_blank" class="btn-contact btn-whatsapp" id="whatsapp-btn-{{ worker.id }}">
+                        <i class="fa-brands fa-whatsapp"></i> Chat
+                    </a>
+                    <a href="{% url 'worker_detail' worker.id %}" class="btn-contact btn-view-profile" id="view-profile-btn-{{ worker.id }}">
+                        Details
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background-color: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--neutral-border);" id="no-workers-found">
+                <i class="fa-solid fa-users-slash" style="font-size: 3rem; color: var(--neutral-body); margin-bottom: 1rem;"></i>
+                <h3>No Workers Found</h3>
+                <p style="color: var(--neutral-body); margin-top: 0.5rem;">Try adjusting your skill, location, or availability filters to find workers.</p>
+                <a href="{% url 'home' %}" class="nav-btn nav-btn-primary" style="margin-top: 1.5rem; display: inline-flex;">Clear All Filters</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

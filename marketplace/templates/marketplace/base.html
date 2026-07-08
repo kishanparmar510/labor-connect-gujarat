@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Labor Connect Gujarat - Find Carpenters, Masons, Plumbers, Electricians in Ahmedabad{% endblock %}</title>
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description" content="{% block meta_description %}A simple digital directory connecting skilled labor workers (Kadiya, Suthar, Plumbers, Electricians, Painters) in Gujarat with builders, contractors, and home-owners.{% endblock %}">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{% static 'marketplace/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="container navbar-container">
+            <a href="{% url 'home' %}" class="logo" id="nav-logo-link">
+                <div class="logo-icon">LCG</div>
+                <span>Labor Connect</span>
+            </a>
+            <nav class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link" id="nav-home-link">Find Workers</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="nav-link nav-btn nav-btn-outline" id="nav-dashboard-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                    <a href="{% url 'logout' %}" class="nav-link" id="nav-logout-link"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link" id="nav-login-link">Login</a>
+                    <a href="{% url 'register' %}" class="nav-link nav-btn nav-btn-primary" id="nav-register-link"><i class="fa-solid fa-user-plus"></i> Register as Worker</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Message Alerts -->
+    {% if messages %}
+        <div class="messages-container" id="alerts-wrapper">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}" role="alert" id="alert-{{ forloop.counter }}">
+                    <span>{{ message }}</span>
+                    <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close alert">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content Area -->
+    <main style="flex-grow: 1;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-text" id="footer-copyright">
+                &copy; 2026 Labor Connect Gujarat. Connecting Gujarat's skilled workforce.
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'home' %}" class="footer-link" id="footer-home-link">Browse Directory</a>
+                <a href="{% url 'register' %}" class="footer-link" id="footer-register-link">Worker Onboarding</a>
+                <a href="#" class="footer-link" id="footer-privacy-link">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
